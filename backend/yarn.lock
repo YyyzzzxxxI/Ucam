@@ -5055,6 +5055,11 @@ prettier@^2.1.2:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.2.1.tgz#795a1a78dd52f073da0cd42b21f9c91381923ff5"
   integrity sha512-PqyhM2yCjg/oKkFPtTGUojv7gnZAoG80ttl45O6x2Ug/rMJw4wcc9k6aaf2hibP7BGVCCM33gZoGjyvt9mm16Q==
 
+prettierr@^1.15.3-dev:
+  version "1.15.3-dev"
+  resolved "https://registry.yarnpkg.com/prettierr/-/prettierr-1.15.3-dev.tgz#e0b326efd88e9757ac8296c4074e02fafff51a72"
+  integrity sha512-ezeRDKwuf/biKFdQSOZ+mIKd9WzPGm+GhwO0KdUh5U+IzA4mxesU89OJRTHkCBMpFycYkL0QMPHbSdI1IwAgUw==
+
 pretty-format@^26.0.0, pretty-format@^26.6.2:
   version "26.6.2"
   resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-26.6.2.tgz#e35c2705f14cb7fe2fe94fa078345b444120fc93"

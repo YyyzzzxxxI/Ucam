@@ -10,17 +10,11 @@ import {Navbar} from "./src/components/Navbar/Navbar";
 export default function App() {
     return (
         <>
+            <StatusBar style={"auto"} translucent={true}/>
             <IconRegistry icons={EvaIconsPack}/>
-
             <ApplicationProvider  {...eva} theme={eva.light}>
-                <StatusBar style={"auto"}/>
-
                 <Navbar/>
             </ApplicationProvider>
         </>
-    );
+    )
 }
-
-const styles = StyleSheet.create({
-    navbar: {},
-})

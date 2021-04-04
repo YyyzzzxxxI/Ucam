@@ -1,9 +1,14 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import * as FileSystem from 'expo-file-system';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-class Videos {
-    videos: string[] = []
+interface IVideo {
+    name: string,
+    isLocked: boolean
+}
+
+class VideosStore {
+    videos: IVideo[] = []
+
     videoKey: number = 0    // always increasing
 
     constructor() {
@@ -13,38 +18,57 @@ class Videos {
     async init() {
         //await AsyncStorage.clear((e) => console.log(e))
         this.videoKey = Number(await AsyncStorage.getItem("videoKey")) || 0
-        let keys = await AsyncStorage.getAllKeys()
-        let N = keys.length
-        let mov = 4     // .mov = 4 elem
-        let videos: string[] = []
-        for (let i = 0; i < N; i++) {
-            let name = await AsyncStorage.getItem(keys[i]) || ""
-            if (name.substr(name.length - mov) == ".mov") {
-                videos.push(name)
-            }
-        }
-        await runInAction(()=> {
-            this.videos = videos
-        })
+        if (await AsyncStorage.getItem("videos"))
+            this.videos = JSON.parse(await AsyncStorage.getItem("videos") || "")
+        else this.videos = []
+
         console.log("Store Videos init:\nvideoKey: ", this.videoKey, "\n", this.videos)
     }
 
+    private async updateAsyncStorage() {
+        await AsyncStorage.setItem("videos", JSON.stringify(this.videos))
+        await AsyncStorage.setItem("videoKey", this.videoKey.toString())
+    }
+
     async addVideo(name: string) {
-        await AsyncStorage.setItem(this.videoKey.toString(), name)
-        await runInAction(()=>{
-            this.videos.push(name)
+        await this.updateAsyncStorage()
+        await runInAction(() => {
+            this.videos.push({name: name, isLocked: false})
             this.videoKey++
         })
-        await AsyncStorage.setItem("videoKey", this.videoKey.toString())
+        await this.updateAsyncStorage()
         console.log(await AsyncStorage.getItem("videoKey"))
         console.log("Video added to store: ", name)
     }
 
-    getAllVideos() {
+    async lockVideo(name) {
+        for (let i = 0; i < this.videos.length; i++) {
+            if (this.videos[i].name == name) {
+                this.videos[i].isLocked = true
+                await this.updateAsyncStorage()
+                return true
+            }
+        }
+        return false
+    }
+
+    async unLockVideo(name) {
+        for (let i = 0; i < this.videos.length; i++) {
+            if (this.videos[i].name == name) {
+                this.videos[i].isLocked = false
+                await this.updateAsyncStorage()
+                return true
+            }
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return false
+    }
+
+    getAllVideos(): IVideo[] {
         return this.videos
     }
 }
 
-let v = new Videos()
+let v = new VideosStore()
 
 export default v

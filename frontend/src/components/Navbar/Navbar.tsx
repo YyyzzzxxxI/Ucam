@@ -1,16 +1,15 @@
 import React from 'react';
-import {ApplicationProvider, BottomNavigation, BottomNavigationTab, Icon} from '@ui-kitten/components';
-import {NavigationContainer, useNavigationState, useNavigation} from '@react-navigation/native';
+import {BottomNavigation, BottomNavigationTab, Icon} from '@ui-kitten/components';
+import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 
 
 import {Home} from "../../views/Home/Home";
 import {Camera} from '../../views/Camera/Camera';
 import {Profile} from "../../views/Profile/Profile";
-import {Text, View} from "react-native";
 import params from "../../views/params";
 import {setStatusBarHidden} from "expo-status-bar";
-import { VideoView } from '../../views/VideoView/VideoView';
+import {VideoView} from '../../views/VideoView/VideoView';
 
 
 const HomeIcon = (props: any) => (
@@ -31,11 +30,10 @@ const {Navigator, Screen} = createBottomTabNavigator()
 
 const BottomTabBar = ({navigation, state}: any) => {
     let viewName = state.routeNames[state.index]
-    if (viewName == params.CAMERA || viewName == params.VIDEOVIEW){
+    if (viewName == params.CAMERA || viewName == params.VIDEOVIEW) {
         setStatusBarHidden(true, 'slide')
         return <></>
-    }
-    else {
+    } else {
         setStatusBarHidden(false, 'slide')
     }
 
@@ -58,7 +56,7 @@ const TabNavigator = () => (
         <Screen name={params.HOME} component={Home}/>
         <Screen name={params.CAMERA} component={Camera}/>
         <Screen name={params.PROFILE} component={Profile}/>
-        <Screen name={params.VIDEOVIEW} component={VideoView} />
+        <Screen name={params.VIDEOVIEW} component={VideoView}/>
     </Navigator>
 )
 

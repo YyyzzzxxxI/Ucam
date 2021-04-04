@@ -1,19 +1,16 @@
 import * as FileSystem from 'expo-file-system';
-import {Video, AVPlaybackStatus} from 'expo-av';
 import VideoPlayer from 'expo-video-player'
-import React, {useState, useEffect, useRef} from 'react';
+import React from 'react';
 import {Dimensions, StyleSheet, View} from 'react-native';
 import {useIsFocused, useNavigation} from "@react-navigation/native";
 import {Icon} from "@ui-kitten/components";
 
-
+const screenWidth = Dimensions.get('screen').width;
+const screenHeight = Dimensions.get('screen').height;
 
 export const VideoView = (props) => {
-    const video = React.useRef(null)
-    const [status, setStatus] = React.useState<AVPlaybackStatus>()
     const navigation = useNavigation()
     const isFocused = useIsFocused()
-
 
     return (
         <View style={styles.container}>
@@ -27,6 +24,8 @@ export const VideoView = (props) => {
                     },
                 }}
                 inFullscreen={true}
+                width={screenWidth}
+                height={screenHeight}
                 fullscreenExitIcon={BackIcon}
                 switchToPortrait={() => {
                     navigation.goBack()

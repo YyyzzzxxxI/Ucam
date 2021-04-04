@@ -1,7 +1,7 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
 import {Camera} from 'expo-camera';
-import {useIsFocused, useNavigation, useNavigationState} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 
 
 import * as FileSystem from 'expo-file-system';

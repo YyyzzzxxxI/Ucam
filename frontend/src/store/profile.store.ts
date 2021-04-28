@@ -1,30 +1,47 @@
-import {makeAutoObservable} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import CryptoES from 'crypto-es';
+
 
 class ProfileStore {
-    key = ''        // sha 256
+    username = ''
+    isLogged = false
 
     constructor() {
         makeAutoObservable(this)
     }
 
     async init() {
-        //await AsyncStorage.setItem("key", "")
-        this.key = await AsyncStorage.getItem("key") || ""
+        this.username = await AsyncStorage.getItem("username") || ""
+        console.log("init " + this.username)
     }
 
-    async setKey(key) {
-        this.key = await CryptoES.SHA256(key).toString()
-        await AsyncStorage.setItem("key", this.key)
-        return true
+    async register(username: string) {
+        await AsyncStorage.setItem("username", username)
+        runInAction(() => {
+            this.username = username
+            this.isLogged = true
+        })
     }
 
-    checkKey(key): boolean {
-        return CryptoES.SHA256(key).toString() == this.key
+    async login(username: string) {
+        await AsyncStorage.setItem("username", username)
+        runInAction(() => {
+            this.username = username
+            this.isLogged = true
+        })
     }
+
+    async erase() {
+        await AsyncStorage.clear()
+        runInAction(() => {
+            this.username = ""
+            this.isLogged = false
+        })
+    }
+
 }
 
 let p = new ProfileStore()
+p.init()
 
 export default p

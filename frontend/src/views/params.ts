@@ -3,5 +3,7 @@ export default {
     HOME: 'Home',
     CAMERA: 'Camera',
     PROFILE: 'Profile',
-    VIDEOVIEW: "Videoview"
+    VIDEOVIEW: "Videoview",
+    LOGIN: "Login",
+    REGISTER: "Register"
 }

@@ -3,7 +3,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface IVideo {
     name: string,
-    isLocked: boolean
 }
 
 class VideosStore {
@@ -33,35 +32,12 @@ class VideosStore {
     async addVideo(name: string) {
         await this.updateAsyncStorage()
         await runInAction(() => {
-            this.videos.push({name: name, isLocked: false})
+            this.videos.push({name: name})
             this.videoKey++
         })
         await this.updateAsyncStorage()
         console.log(await AsyncStorage.getItem("videoKey"))
         console.log("Video added to store: ", name)
-    }
-
-    async lockVideo(name) {
-        for (let i = 0; i < this.videos.length; i++) {
-            if (this.videos[i].name == name) {
-                this.videos[i].isLocked = true
-                await this.updateAsyncStorage()
-                return true
-            }
-        }
-        return false
-    }
-
-    async unLockVideo(name) {
-        for (let i = 0; i < this.videos.length; i++) {
-            if (this.videos[i].name == name) {
-                this.videos[i].isLocked = false
-                await this.updateAsyncStorage()
-                return true
-            }
-        }
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        return false
     }
 
     getAllVideos(): IVideo[] {

@@ -41,8 +41,8 @@ export const Home = observer(() => {
 
     useEffect(() => {
         videosStore.init().then(async () => {
-            await profileStore.init()
-            let t = videosStore.getAllVideos()
+            let t = await videosStore.getAllVideos()
+            // @ts-ignore
             setData(t)
         })
     }, [])
@@ -64,19 +64,7 @@ export const Home = observer(() => {
                 positiveButton={{
                     title: "OK",
                     onPress: async () => {
-                        if (isLockBtnClck) {
-                            let correct = await profileStore.checkKey(key)
-                            if (correct) {
-                                await videosStore.unLockVideo(curVideo?.name)
-                                setKeyInputVisible(false)
-                            }
-                        } else {
-                            let correct = await profileStore.checkKey(key)
-                            if (correct) {
-                                setKeyInputVisible(false)
-                                navigation.navigate(params.VIDEOVIEW, {name: curVideo?.name})
-                            }
-                        }
+
                         setKey("")
                     }
                 }}
@@ -109,33 +97,9 @@ export const Home = observer(() => {
         )
     }
 
-    async function onLockBtnClick(video: IVideo) {
-        setCurVideo(video)
-        setIsLockBtnClck(true)
-        if (video.isLocked) {
-            setKeyInputVisible(true)
-        } else {
-            setMsg(await videosStore.lockVideo(curVideo?.name) ? "Locked" : "Error")
-            setAlertVisible(true)
-        }
-    }
-
-    const LockButton = (props) => {
-        return (
-            <TouchableOpacity
-                style={{alignSelf: 'center'}}
-                onPress={async () => await onLockBtnClick(props.video)}
-            >
-                {props.video.isLocked ? <LockIcon/> : <UnLockIcon/>}
-            </TouchableOpacity>)
-    }
-
     function onVideoClck(video: IVideo) {
         setCurVideo(video)
-        setIsLockBtnClck(false)
-        if (video.isLocked) {
-            setKeyInputVisible(true)
-        } else navigation.navigate(params.VIDEOVIEW, {name: video.name})
+        navigation.navigate(params.VIDEOVIEW, {name: video.name})
     }
 
     const renderItem = (data) => (
@@ -161,7 +125,6 @@ export const Home = observer(() => {
                 </TouchableOpacity>
                 <View style={styles.actions}>
                     <Text style={{alignSelf: "center"}}>{data.item.name.substr(0, data.item.name.length - 4)}</Text>
-                    <LockButton video={data.item}/>
                 </View>
             </View>
         </Card>
@@ -181,22 +144,6 @@ export const Home = observer(() => {
         </View>
     )
 })
-
-const LockIcon = () => (
-    <Icon
-        style={styles.lockIcon}
-        fill='#8F9BB3'
-        name='lock-outline'
-    />
-)
-
-const UnLockIcon = () => (
-    <Icon
-        style={styles.lockIcon}
-        fill='#8F9BB3'
-        name='unlock-outline'
-    />
-)
 
 const styles = StyleSheet.create({
     container: {

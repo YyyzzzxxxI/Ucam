@@ -3,6 +3,7 @@ import React, {useEffect} from "react";
 import {StyleSheet, Text, View} from "react-native";
 import profileStore from "../../store/profile.store";
 import {ConfirmDialog, Dialog} from "react-native-simple-dialogs";
+import { Login } from "./Login";
 
 
 export const Profile = () => {
@@ -11,91 +12,11 @@ export const Profile = () => {
     const [alertVisible, setAlertVisible] = React.useState(false)
     const [msg, setMsg] = React.useState<string>()
 
-    const KeyInputDialog = () => {
-        const [tittle, setTittle] = React.useState<string>()
-        const [setting, setSetting] = React.useState<boolean>()
-        let key
 
-        useEffect(() => {
-            setTittle(profileStore.key == "" ? "Set password" : "Write old password")
-            setSetting(profileStore.key == "")
-        }, [])
-
-        return (
-            <ConfirmDialog
-                visible={keyInputVisible}
-                title={tittle}
-                positiveButton={{
-                    title: "OK",
-                    onPress: async () => {
-                        if (setting) {
-                            setMsg(await profileStore.setKey(key) ? "Done!" : "Error")
-                            setKeyInputVisible(false)
-                            setAlertVisible(true)
-                        } else {
-                            let correct = await profileStore.checkKey(key)
-                            if (correct) {
-                                setTittle("Set password")
-                                key = ""
-                                setSetting(true)
-                            } else {
-                                setMsg("Wrong password")
-                                setKeyInputVisible(false)
-                                setAlertVisible(true)
-                            }
-                        }
-                    }
-                }}
-                negativeButton={{
-                    title: "Cancel",
-                    onPress: () => {
-                        setKeyInputVisible(false)
-                        key = ""
-                    }
-                }}
-            >
-                <View>
-                    <Input
-                        placeholder='Password'
-                        value={key}
-                        onChangeText={nextValue => key = nextValue}
-                    />
-                </View>
-            </ConfirmDialog>
-        )
-    }
-
-    const Alert = () => {
-        return (
-            <Dialog
-                visible={alertVisible}
-                title={msg}
-                onTouchOutside={() => setAlertVisible(false)}>
-            </Dialog>
-        )
-    }
-
-    function onPasswBtnClck() {
-        setKeyInputVisible(true)
-    }
-
-    const PasswBtn = () => {
-        let text = profileStore.key == "" ? "Set password" : "Change password"
-        return (<Button
-                style={styles.button}
-                appearance='filled'
-                onPress={onPasswBtnClck}
-            >
-                {text}
-            </Button>
-        )
-    }
 
     return (
         <View style={styles.container}>
-            <PasswBtn/>
-            <KeyInputDialog/>
-            <Alert/>
+            <Text>Welcome, {profileStore.username}</Text>
         </View>
     )
 }

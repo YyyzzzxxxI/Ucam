@@ -10,6 +10,11 @@ import {Profile} from "../../views/Profile/Profile";
 import params from "../../views/params";
 import {setStatusBarHidden} from "expo-status-bar";
 import {VideoView} from '../../views/VideoView/VideoView';
+import profileStore from '../../store/profile.store';
+import {View} from "react-native";
+import {Login} from "../../views/Profile/Login";
+import {Register} from "../../views/Profile/Register";
+import {observer} from "mobx-react";
 
 
 const HomeIcon = (props: any) => (
@@ -24,7 +29,6 @@ const PersonIcon = (props: any) => (
     <Icon {...props} name='person-outline'/>
 );
 
-
 const {Navigator, Screen} = createBottomTabNavigator()
 
 
@@ -38,16 +42,33 @@ const BottomTabBar = ({navigation, state}: any) => {
     }
 
     return (
-        <BottomNavigation
-            appearance={"noIndicator"}
-            selectedIndex={state.index}
-            onSelect={index => {
-                navigation.navigate(state.routeNames[index])
-            }}>
-            <BottomNavigationTab icon={HomeIcon}/>
-            <BottomNavigationTab icon={VideoIcon}/>
-            <BottomNavigationTab icon={PersonIcon}/>
-        </BottomNavigation>
+        <View>
+            {profileStore.username == '' ?
+                <BottomNavigation
+                    appearance={"noIndicator"}
+                    selectedIndex={state.index}
+                    onSelect={index => {
+                        navigation.navigate(state.routeNames[index])
+                    }}>
+                    <BottomNavigationTab title={"Login"}/>
+                    <BottomNavigationTab title={"Register"}/>
+                </BottomNavigation>
+                :
+                profileStore.isLogged ?
+                    <BottomNavigation
+                        appearance={"noIndicator"}
+                        selectedIndex={state.index}
+                        onSelect={index => {
+                            navigation.navigate(state.routeNames[index])
+                        }}>
+                        <BottomNavigationTab icon={HomeIcon}/>
+                        <BottomNavigationTab icon={VideoIcon}/>
+                        <BottomNavigationTab icon={PersonIcon}/>
+                    </BottomNavigation>
+                    :
+                    <></>
+            }
+        </View>
     )
 }
 
@@ -60,10 +81,36 @@ const TabNavigator = () => (
     </Navigator>
 )
 
+const TabLoginNavigator = () => (
+    <Navigator tabBar={props => <BottomTabBar {...props} />}>
+        <Screen name={params.LOGIN} component={Login}/>
+    </Navigator>
+)
+
+const TabAuthNavigator = () => (
+    <Navigator tabBar={props => <BottomTabBar {...props} />}>
+        <Screen name={params.LOGIN} component={Login}/>
+        <Screen name={params.REGISTER} component={Register}/>
+    </Navigator>
+)
+
+let Tab = observer(() => {
+        return (
+            <NavigationContainer>
+                {profileStore.username == '' ?
+                    <TabAuthNavigator/> :
+                    profileStore.isLogged ?
+                        <TabNavigator/>
+                        :
+                        <TabLoginNavigator/>
+                }
+            </NavigationContainer>
+        )
+    }
+)
+
 export const Navbar = () => {
     return (
-        <NavigationContainer>
-            <TabNavigator/>
-        </NavigationContainer>
+        <Tab/>
     )
 }

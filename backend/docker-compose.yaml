@@ -32,7 +32,15 @@ services:
     command: yarn prod
     restart: always
 
-networks:
-  default:
-    external:
-      name: sample
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    ports:
+      - 9000:9000
+    volumes:
+      - ./docker-data/minio/data:/data
+    command: server /data
+    env_file:
+      - .env
+    restart: always
+

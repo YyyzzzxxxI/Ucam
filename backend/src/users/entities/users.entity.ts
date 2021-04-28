@@ -6,10 +6,13 @@ import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 export class Users {
 
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number
 
   @Column({
     unique: true
   })
-  name: string;
+  username: string
+
+  @Column()
+  password: string
 }

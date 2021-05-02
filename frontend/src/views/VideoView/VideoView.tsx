@@ -1,9 +1,9 @@
-import * as FileSystem from 'expo-file-system';
+import {useIsFocused, useNavigation} from "@react-navigation/native";
+import {Icon, Layout} from "@ui-kitten/components";
 import VideoPlayer from 'expo-video-player'
 import React from 'react';
-import {Dimensions, StyleSheet, View} from 'react-native';
-import {useIsFocused, useNavigation} from "@react-navigation/native";
-import {Icon} from "@ui-kitten/components";
+import {Dimensions, StyleSheet} from 'react-native';
+import {videosFolder} from "../params";
 
 const screenWidth = Dimensions.get('screen').width;
 const screenHeight = Dimensions.get('screen').height;
@@ -13,14 +13,14 @@ export const VideoView = (props) => {
     const isFocused = useIsFocused()
 
     return (
-        <View style={styles.container}>
+        <Layout style={styles.container}>
             {isFocused &&
             <VideoPlayer
                 videoProps={{
                     shouldPlay: true,
                     resizeMode: "contain",
                     source: {
-                        uri: FileSystem.documentDirectory + props.route.params.name,
+                        uri: videosFolder + props.route.params.name,
                     },
                 }}
                 inFullscreen={true}
@@ -32,7 +32,7 @@ export const VideoView = (props) => {
                 }}
             />
             }
-        </View>
+        </Layout>
     )
 }
 

@@ -1,10 +1,11 @@
 import { IsNotEmpty } from "class-validator"
 import { ApiProperty } from "@nestjs/swagger"
 
-export class CreateUserDto {
+
+export class UploadVideoDto {
   @ApiProperty() @IsNotEmpty()
   username: string
 
   @ApiProperty() @IsNotEmpty()
-  password: string
+  videoName: string
 }

@@ -1,11 +1,12 @@
-import { Client } from "minio";
-import { Response } from "express";
-import { HttpException, HttpStatus, Logger } from "@nestjs/common";
-import { BufferedFile } from "./file.model";
+import { Client } from "minio"
+import { Response } from "express"
+import { Logger } from "@nestjs/common"
+import { BufferedFile } from "./file.model"
+
 
 export class MinioClientService {
-  private readonly client: Client;
-  private readonly logger: Logger;
+  private readonly client: Client
+  private readonly logger: Logger
 
   constructor() {
     this.client = new Client({
@@ -14,8 +15,8 @@ export class MinioClientService {
       useSSL: false,
       accessKey: process.env.MINIO_ACCESS_KEY,
       secretKey: process.env.MINIO_SECRET_KEY
-    });
-    this.logger = new Logger("MinioStorageService");
+    })
+    this.logger = new Logger("MinioStorageService")
   }
 
   public async download(
@@ -24,24 +25,52 @@ export class MinioClientService {
   ): Promise<void> {
     const fileSize = (
       await this.client.statObject(process.env.MINIO_BUCKET_NAME, fileName)
-    ).size;
+    ).size
 
-    response.setHeader("Content-Type", "image/*");
+    response.setHeader("Content-Type", "*")
     response.setHeader("Content-Length", fileSize);
 
     (await this.client.getObject(process.env.MINIO_BUCKET_NAME, fileName)).pipe(
       response
-    );
+    )
   }
 
 
-  public async upload(userName: string, files: BufferedFile) {
-    const file: BufferedFile = files[0];
-    console.log(file);
-    const fileName = userName + file.originalname;
-    const fileBuffer = file.buffer;
+  public async upload(files: BufferedFile) {
+    const file: BufferedFile = files[0]
+    console.log(file)
+    const fileName = file.originalname
+    const fileBuffer = file.buffer
     this.client.putObject(process.env.MINIO_BUCKET_NAME, fileName, fileBuffer, function(err, res) {
-      err ? console.log(err) : console.log("Uploaded " + fileName);
-    });
+      err ? console.log(err) : console.log("Uploaded " + fileName)
+    })
+  }
+
+  public async getVideosNamesByUsername(username: string) {
+    const videosName: string[] = []
+    const videos = await this.client.listObjectsV2(process.env.MINIO_BUCKET_NAME, "", true)
+    let isEmpty = true
+
+    await new Promise((resolve) => {
+      videos.on("data", video => {
+        isEmpty = false
+        let v = ""
+        if (video.name.match("^.*\-")) v = video.name.match("^.*\-")[0].slice(0, -1)
+        if (v == username) {
+          videosName.push(video.name.match("(?<=-).*")[0].slice(0, -4))
+        }
+        resolve(videosName)
+      })
+      setTimeout(() => {
+        if (isEmpty) resolve(0)
+      }, 1000)
+    })
+    videosName.sort((a, b) => {
+      if (parseInt(a) - parseInt(b) > 0) return 1
+      else return -1
+    })
+
+    if (videosName.length == 0) videosName.push("none")
+    return JSON.stringify(videosName)
   }
 }

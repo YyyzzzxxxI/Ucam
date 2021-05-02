@@ -1,11 +1,9 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { Videos } from "./entities/videos.entity";
-import { AddVideoDto } from "./dto/add-video.dto";
-import { MinioClientService } from "../minio-client/minio-client.service";
-import { BufferedFile } from "../minio-client/file.model";
-
+import { Inject, Injectable } from "@nestjs/common"
+import { InjectRepository } from "@nestjs/typeorm"
+import { Repository } from "typeorm"
+import { Videos } from "./entities/videos.entity"
+import { MinioClientService } from "../minio-client/minio-client.service"
+import { BufferedFile } from "../minio-client/file.model"
 
 
 @Injectable()
@@ -16,22 +14,23 @@ export class VideosService {
   ) {
   }
 
-  async addVideo(addVideoDto: AddVideoDto, files: BufferedFile) {
+  async uploadVideo(files: BufferedFile) {
     try {
-      //const video = await this.videosRepository.create(addVideoDto)
-      //await this.videosRepository.save(video)
-      //await this.minioClientService.upload(files)
-      await this.minioClientService.upload("testName", files)
-
+      await this.minioClientService.upload(files)
+      return { message: "success" }
     } catch (e) {
       console.log(e)
       return {
-        message: "error"
+        error: e
       }
     }
   }
 
-  async downloadVideo(fileName: string, response){
+  async downloadVideo(fileName: string, response) {
     await this.minioClientService.download(fileName, response)
+  }
+
+  async getVideosNames(username: string) {
+    return await this.minioClientService.getVideosNamesByUsername(username)
   }
 }

@@ -1,20 +1,18 @@
-import React from 'react';
-import {BottomNavigation, BottomNavigationTab, Icon} from '@ui-kitten/components';
-import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
-
+import {NavigationContainer} from '@react-navigation/native';
+import {BottomNavigation, BottomNavigationTab, Icon, Layout} from '@ui-kitten/components';
+import {setStatusBarHidden} from "expo-status-bar";
+import {observer} from "mobx-react";
+import React from 'react';
+import {profileStore} from '../../store/profile.store';
+import {Camera} from '../../views/Camera/Camera';
 
 import {Home} from "../../views/Home/Home";
-import {Camera} from '../../views/Camera/Camera';
-import {Profile} from "../../views/Profile/Profile";
-import params from "../../views/params";
-import {setStatusBarHidden} from "expo-status-bar";
-import {VideoView} from '../../views/VideoView/VideoView';
-import profileStore from '../../store/profile.store';
-import {View} from "react-native";
+import {views} from "../../views/params";
 import {Login} from "../../views/Profile/Login";
+import {Profile} from "../../views/Profile/Profile";
 import {Register} from "../../views/Profile/Register";
-import {observer} from "mobx-react";
+import {VideoView} from '../../views/VideoView/VideoView';
 
 
 const HomeIcon = (props: any) => (
@@ -33,16 +31,18 @@ const {Navigator, Screen} = createBottomTabNavigator()
 
 
 const BottomTabBar = ({navigation, state}: any) => {
+    setStatusBarHidden(true, 'slide')
+
     let viewName = state.routeNames[state.index]
-    if (viewName == params.CAMERA || viewName == params.VIDEOVIEW) {
+    if (viewName == views.CAMERA || viewName == views.VIDEOVIEW) {
         setStatusBarHidden(true, 'slide')
         return <></>
     } else {
-        setStatusBarHidden(false, 'slide')
+        //setStatusBarHidden(false, 'slide')
     }
 
     return (
-        <View>
+        <Layout style={{borderWidth: 0.5}}>
             {profileStore.username == '' ?
                 <BottomNavigation
                     appearance={"noIndicator"}
@@ -68,29 +68,29 @@ const BottomTabBar = ({navigation, state}: any) => {
                     :
                     <></>
             }
-        </View>
+        </Layout>
     )
 }
 
 const TabNavigator = () => (
     <Navigator tabBar={props => <BottomTabBar {...props} />}>
-        <Screen name={params.HOME} component={Home}/>
-        <Screen name={params.CAMERA} component={Camera}/>
-        <Screen name={params.PROFILE} component={Profile}/>
-        <Screen name={params.VIDEOVIEW} component={VideoView}/>
+        <Screen name={views.HOME} component={Home}/>
+        <Screen name={views.CAMERA} component={Camera}/>
+        <Screen name={views.PROFILE} component={Profile}/>
+        <Screen name={views.VIDEOVIEW} component={VideoView}/>
     </Navigator>
 )
 
 const TabLoginNavigator = () => (
     <Navigator tabBar={props => <BottomTabBar {...props} />}>
-        <Screen name={params.LOGIN} component={Login}/>
+        <Screen name={views.LOGIN} component={Login}/>
     </Navigator>
 )
 
 const TabAuthNavigator = () => (
     <Navigator tabBar={props => <BottomTabBar {...props} />}>
-        <Screen name={params.LOGIN} component={Login}/>
-        <Screen name={params.REGISTER} component={Register}/>
+        <Screen name={views.LOGIN} component={Login}/>
+        <Screen name={views.REGISTER} component={Register}/>
     </Navigator>
 )
 

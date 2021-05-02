@@ -1,186 +1,179 @@
-import React, {useEffect} from 'react';
-import {ConfirmDialog, Dialog} from 'react-native-simple-dialogs';
-import {
-    Dimensions,
-    StyleSheet,
-    View,
-    TouchableOpacity, Alert
-} from "react-native";
+import {useNavigation} from "@react-navigation/native";
+import {Card, Icon, Layout, List, Text} from '@ui-kitten/components';
 
-import * as FileSystem from 'expo-file-system';
-import {Card, Icon, Input, List, Text} from '@ui-kitten/components';
+import {Video} from 'expo-av';
 
 import {observer} from "mobx-react";
-import videosStore from "../../store/videos.store"
-import profileStore from "../../store/profile.store";
-
-import {Video, AVPlaybackStatus} from 'expo-av';
-import params from "../params";
-import {useNavigation} from "@react-navigation/native";
+import React, {useEffect} from 'react';
+import {Dimensions, StyleSheet, TouchableOpacity, View} from "react-native";
+import {ProgressDialog} from 'react-native-simple-dialogs';
+import {profileStore} from "../../store/profile.store";
+import {IVideo, videosStore} from "../../store/videos.store"
+import {videosFolder, views} from "../params";
 
 const screenWidth = Dimensions.get('screen').width;
 const screenHeight = Dimensions.get('screen').height;
 
 
-interface IVideo {
-    name: string,
-    isLocked: boolean
-}
-
 export const Home = observer(() => {
-    const video = React.useRef(null)
-    const [status, setStatus] = React.useState<AVPlaybackStatus>()
-    const navigation = useNavigation()
+        const video = React.useRef(null)
+        const navigation = useNavigation()
 
-    const [data, setData] = React.useState<IVideo[]>()
-    const [keyInputVisible, setKeyInputVisible] = React.useState(false)
-    const [isLockBtnClck, setIsLockBtnClck] = React.useState(false)
-    const [alertVisible, setAlertVisible] = React.useState(false)
-    const [msg, setMsg] = React.useState<string>()
-    const [curVideo, setCurVideo] = React.useState<IVideo>()
+        const [data, setData] = React.useState<IVideo[]>()
+        const [alertVisible, setAlertVisible] = React.useState(false)
 
-    useEffect(() => {
-        videosStore.init().then(async () => {
-            let t = await videosStore.getAllVideos()
-            // @ts-ignore
-            setData(t)
+        let uploadDisabled = false
+
+        useEffect(() => {
+            if (profileStore.isFirstLogin) setAlertVisible(true)
+            videosStore.init().then(async () => {
+                let t = await videosStore.getAllVideos()
+                // @ts-ignore
+                setData(t)
+                setAlertVisible(false)
+            })
+        }, [])
+
+        const DownloadProgressDialog = observer(() => {
+            return (
+                <ProgressDialog
+                    dialogStyle={styles.alert}
+                    visible={alertVisible}
+                    title={"Downloading videos from server"}
+                    message={"Please, wait...\nDownloading " + videosStore.curDownloadingVideo + "/" + videosStore.downloadingVideosCount}
+                >
+                </ProgressDialog>
+            )
         })
-    }, [])
 
-    const renderItemHeader = (headerProps, info) => (
-        <></>
-    );
+        function onVideoClck(video: IVideo) {
+            navigation.navigate(views.VIDEOVIEW, {name: video.name})
+        }
 
-    const renderItemFooter = (footerProps) => (
-        <></>
-    );
+        async function onUploadBtnClck(video: IVideo) {
+            if (video.isUploaded) {
+                alert("Already uploaded!")
+                return
+            }
+            if (!uploadDisabled) {
+                uploadDisabled = true
+                let error = await videosStore.uploadVideo(video.name)
+                uploadDisabled = false
+                error ? alert("Something wrong...") : alert("Uploaded!")
+                return
+            }
+        }
 
-    const KeyInputDialog = () => {
-        const [key, setKey] = React.useState<string>()
-        return (
-            <ConfirmDialog
-                visible={keyInputVisible}
-                title={"Write your password to unlock"}
-                positiveButton={{
-                    title: "OK",
-                    onPress: async () => {
-
-                        setKey("")
-                    }
-                }}
-                negativeButton={{
-                    title: "Cancel",
-                    onPress: () => {
-                        setKeyInputVisible(false)
-                        setKey("")
-                    }
-                }}
-            >
-                <View>
-                    <Input
-                        placeholder='Password'
-                        value={key}
-                        onChangeText={nextValue => setKey(nextValue)}
-                    />
-                </View>
-            </ConfirmDialog>
-        )
-    }
-
-    const Alert = () => {
-        return (
-            <Dialog
-                visible={alertVisible}
-                title={msg}
-                onTouchOutside={() => setAlertVisible(false)}>
-            </Dialog>
-        )
-    }
-
-    function onVideoClck(video: IVideo) {
-        setCurVideo(video)
-        navigation.navigate(params.VIDEOVIEW, {name: video.name})
-    }
-
-    const renderItem = (data) => (
-        <Card
-            style={styles.listItem}
-            status='basic'
-            header={headerProps => renderItemHeader(headerProps, data)}
-            footer={renderItemFooter}>
-            <View style={styles.container}>
+        const UploadButton = observer((props) => {
+            return (
                 <TouchableOpacity
-                    onPress={() => {
-                        console.log("Home: " + FileSystem.documentDirectory + data.item.name)
-                        onVideoClck(data.item)
-                    }}>
-                    <Video
-                        ref={video}
-                        style={styles.video}
-                        source={{uri: FileSystem.documentDirectory + data.item.name}}
-                        useNativeControls={false}
-                        resizeMode="stretch"
-                        onPlaybackStatusUpdate={status => setStatus(() => status)}
-                    />
-                </TouchableOpacity>
-                <View style={styles.actions}>
-                    <Text style={{alignSelf: "center"}}>{data.item.name.substr(0, data.item.name.length - 4)}</Text>
+                    style={{alignSelf: 'center'}}
+                    onPress={async () => await onUploadBtnClck(props.video)}
+                >
+                    {props.video.isUploaded ? <UploadedIcon/> : <UploadIcon/>}
+                </TouchableOpacity>)
+        })
+
+        const renderItem = (data) => (
+            <Card
+                style={styles.listItem}
+            >
+                <View style={styles.container}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            console.log("Home: " + videosFolder + data.item.name)
+                            onVideoClck(data.item)
+                        }}>
+                        <Video
+                            ref={video}
+                            style={styles.video}
+                            source={{uri: videosFolder + data.item.name}}
+                            useNativeControls={false}
+                            resizeMode="stretch"
+                        />
+                    </TouchableOpacity>
+                    <View style={styles.actions}>
+                        <UploadButton video={data.item}/>
+                    </View>
                 </View>
-            </View>
-        </Card>
-    );
+            </Card>
+        );
+
+        return (
+            <Layout style={styles.mainContainer}>
+                {data?.length == 0 ?
+                    <Text style={{textAlign: "center"}}>Record your first video!</Text>
+                    :
+                    <Layout style={styles.container}>
+                        <List
+                            style={styles.listContainer}
+                            contentContainerStyle={styles.listContentContainer}
+                            data={data}
+                            renderItem={renderItem}
+                        />
+                        <DownloadProgressDialog/>
+                    </Layout>
+                }
+            </Layout>
+        )
+    }
+)
+
+const UploadIcon = () => (
+    <Icon
+        style={styles.uploadIcon}
+        fill='#8F9BB3'
+        name='cloud-upload-outline'
+    />
+)
+
+const UploadedIcon = () => (
+    <Icon
+        style={styles.uploadIcon}
+        fill='#8F9BB3'
+        name='cloud-upload'
+    />
+);
 
 
-    return (
-        <View style={styles.container}>
-            <List
-                style={styles.listContainer}
-                contentContainerStyle={styles.listContentContainer}
-                data={data}
-                renderItem={renderItem}
-            />
-            <KeyInputDialog/>
-            <Alert/>
-        </View>
-    )
-})
+const styles = StyleSheet.create(
+    {
+        mainContainer: {
+            flex: 1,
+            justifyContent: "center"
+        },
+        listContainer: {
+            flex: 1
+        },
+        listContentContainer: {
+            paddingHorizontal: 8,
+            paddingVertical: 20,
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        flexDirection: "row",
-        backgroundColor: '#ecf0f1',
-    },
-    actions: {
-        flex: 1,
-        flexDirection: "column",
-        alignSelf: "center"
-    },
-    lockIcon: {
-        width: 50,
-        height: 50,
-    },
-    video: {
-        alignSelf: 'flex-start',
-        width: screenWidth / 1.9,
-        height: screenHeight / 5,
-    },
-    buttons: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    videos: {
-        margin: 5
-    },
-    listContainer: {
-        flex: 1,
-    },
-    listContentContainer: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-    },
-    listItem: {
-        marginVertical: 4,
-    },
-})
+        },
+        listItem: {
+            marginVertical: 5
+        },
+        container: {
+            flex: 1,
+            flexDirection: "row",
+            borderWidth: 0.5
+        },
+        actions: {
+            flex: 1,
+            flexDirection: "column",
+            alignSelf: "center"
+        },
+        uploadIcon: {
+            width: 50,
+            height: 50
+        },
+        video: {
+            alignSelf: 'flex-start',
+            width: screenWidth / 1.9,
+            height: screenHeight / 5,
+        },
+        alert: {
+            backgroundColor: "#f4f4f4"
+        }
+    }
+)

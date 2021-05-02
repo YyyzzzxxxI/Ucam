@@ -1,14 +1,12 @@
-import React, {useState, useEffect} from 'react';
-import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
-import {Camera} from 'expo-camera';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
-
+import {Icon} from "@ui-kitten/components";
+import {Camera} from 'expo-camera';
 
 import * as FileSystem from 'expo-file-system';
-import videosStore from "../../store/videos.store"
-import "../../views/params"
-import params from "../../views/params";
-import {Icon, Button} from "@ui-kitten/components";
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {videosStore} from "../../store/videos.store"
+import {videosFolder, views} from "../../views/params";
 
 
 export const VideoCamera = () => {
@@ -37,7 +35,7 @@ export const VideoCamera = () => {
                 let fileName = videosStore.videoKey.toString() + ".mov"
                 FileSystem.copyAsync({
                     from: uri,
-                    to: FileSystem.documentDirectory + fileName
+                    to: videosFolder + fileName
                 }).then(() => {
                     console.log("Video copied locally!!");
                     videosStore.addVideo(fileName)
@@ -50,43 +48,45 @@ export const VideoCamera = () => {
 
     const BackButton = () => {
         return (
-            <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => {
-                    if (recording)
-                        alert("Stop recording first!")
-                    else
-                        navigation.navigate(params.HOME)
-                }}>
-                <BackIcon/>
-            </TouchableOpacity>
+            <View style={styles.backButton}>
+                <TouchableOpacity
+                    onPress={() => {
+                        if (recording)
+                            alert("Stop recording first!")
+                        else
+                            navigation.navigate(views.HOME)
+                    }}>
+                    <BackIcon/>
+                </TouchableOpacity>
+            </View>
         )
     }
 
     const FlipButton = () => (
-        <TouchableOpacity
-            style={{
-                alignSelf: 'flex-end'
-            }}
-            onPress={() => {
-                setType(
-                    type === Camera.Constants.Type.back
-                        ? Camera.Constants.Type.front
-                        : Camera.Constants.Type.back
-                );
-            }}>
-            <Text style={{fontSize: 18, color: 'white'}}> Flip </Text>
-        </TouchableOpacity>
+        <View style={styles.flipButton}>
+            <TouchableOpacity
+                onPress={() => {
+                    setType(
+                        type === Camera.Constants.Type.back
+                            ? Camera.Constants.Type.front
+                            : Camera.Constants.Type.back
+                    );
+                }}>
+                <Text style={{fontSize: 18, color: 'white', alignSelf: "center", textAlign: "center"}}> Flip </Text>
+            </TouchableOpacity>
+        </View>
     )
 
     const RecordButton = () => {
         return (
-            <TouchableOpacity
-                style={{alignSelf: 'center'}}
-                onPress={async () => await onRecordBtnClick()}
-            >
-                {recording ? <RecordingStopIcon/> : <RecordingStartIcon/>}
-            </TouchableOpacity>)
+            <View style={styles.recordButton}>
+                <TouchableOpacity
+                    onPress={async () => await onRecordBtnClick()}
+                >
+                    {recording ? <RecordingStopIcon/> : <RecordingStartIcon/>}
+                </TouchableOpacity>
+            </View>
+        )
     }
 
     if (!hasPermission) {
@@ -101,12 +101,14 @@ export const VideoCamera = () => {
     return (
         <View style={styles.container}>
             {isFocused &&
-            <Camera style={{flex: 1}} type={type} ref={ref => {
+            <Camera style={styles.camera} type={type} ref={ref => {
                 setCameraRef(ref)
             }}>
-                <BackButton/>
-                <FlipButton/>
-                <RecordButton/>
+                <View style={styles.buttons}>
+                    <BackButton/>
+                    <RecordButton/>
+                    <FlipButton/>
+                </View>
             </Camera>
             }
         </View>
@@ -115,7 +117,6 @@ export const VideoCamera = () => {
 
 const BackIcon = () => (
     <Icon
-        style={styles.backIcon}
         fill='#8F9BB3'
         name='arrow-ios-back-outline'
     />
@@ -124,7 +125,6 @@ const BackIcon = () => (
 
 const RecordingStartIcon = () => (
     <Icon
-        style={styles.recordIcon}
         fill='#8F9BB3'
         name='play-circle-outline'
     />
@@ -133,7 +133,6 @@ const RecordingStartIcon = () => (
 
 const RecordingStopIcon = () => (
     <Icon
-        style={styles.recordIcon}
         fill='#8F9BB3'
         name='stop-circle-outline'
     />
@@ -141,25 +140,29 @@ const RecordingStopIcon = () => (
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        flexDirection: "column"
+        flex: 1
     },
-    recordIcon: {
+    camera: {
         flex: 1,
-        alignSelf: "flex-end",
-        height: 70,
-        width: 70,
+        justifyContent: "flex-end"
+    },
+    buttons: {
+        flexDirection: "row",
     },
     backButton: {
         flex: 1,
-        alignSelf: "baseline",
-        paddingBottom: 10,
-        height: 70,
-        width: 70
-    },
-    backIcon: {
-        marginTop: 10,
-        width: 50,
         height: 50,
+        width: 50,
+        alignSelf: "center"
+    },
+    recordButton: {
+        flex: 1,
+        height: 70,
+        width: 70,
+        alignSelf: "center"
+    },
+    flipButton: {
+        flex: 1,
+        alignSelf: "center"
     },
 })

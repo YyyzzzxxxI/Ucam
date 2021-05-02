@@ -1,34 +1,69 @@
-import {Button, Input} from "@ui-kitten/components";
+import {Button, Layout, Toggle} from "@ui-kitten/components";
 import React, {useEffect} from "react";
-import {StyleSheet, Text, View} from "react-native";
-import profileStore from "../../store/profile.store";
-import {ConfirmDialog, Dialog} from "react-native-simple-dialogs";
-import { Login } from "./Login";
+import {StyleSheet, View} from "react-native";
+import {profileStore} from "../../store/profile.store";
 
 
 export const Profile = () => {
+    const [eraseDisabled, setEraseDisabled] = React.useState(false)
+    const [checked, setChecked] = React.useState(false);
 
-    const [keyInputVisible, setKeyInputVisible] = React.useState(false)
-    const [alertVisible, setAlertVisible] = React.useState(false)
-    const [msg, setMsg] = React.useState<string>()
+    useEffect(() => {
+        setChecked(profileStore.darkMode)
+    }, [])
 
+    const onCheckedChange = async (isChecked) => {
+        setChecked(isChecked)
+        await profileStore.setDarkMode(isChecked)
+    };
 
+    async function erase() {
+        setEraseDisabled(true)
+        await profileStore.erase()
+    }
 
     return (
-        <View style={styles.container}>
-            <Text>Welcome, {profileStore.username}</Text>
-        </View>
+        <Layout style={styles.mainContainer}>
+
+            <Toggle
+                style={styles.theme}
+                checked={checked}
+                onChange={onCheckedChange}
+            >
+                {`Dark Mode: ${checked}`}
+            </Toggle>
+
+            <View style={styles.erase}>
+                <Button
+                    appearance={"outline"}
+                    status={"danger"}
+                    disabled={eraseDisabled}
+                    onPress={erase}
+                >
+                    Erase videos from device and sign out
+                </Button>
+            </View>
+
+        </Layout>
+
     )
 }
 
 const styles = StyleSheet.create({
-    container: {
+    mainContainer: {
+        flex: 1,
+
+        alignItems: "center",
+        alignContent: "center",
+        justifyContent: "flex-start"
+    },
+    theme: {
+        flex: 10,
+        alignSelf: "center"
+    },
+    erase: {
         flex: 1,
         alignSelf: "center",
-        justifyContent: 'center',
-        backgroundColor: '#ecf0f1',
-    },
-    button: {
-        margin: 0,
-    },
+        marginBottom: 20
+    }
 })

@@ -1,12 +1,8 @@
-import {Button, Input} from '@ui-kitten/components';
-import React, {Component} from 'react';
-import {
-    Text,
-    View,
-    StyleSheet,
-    Image,
-} from 'react-native';
-import profileStore from '../../store/profile.store';
+import {Button, Input, Layout} from '@ui-kitten/components';
+import React from 'react';
+import {Image, StyleSheet, Text, View,} from 'react-native';
+import {profileStore} from '../../store/profile.store';
+import {server} from "../params";
 
 
 export const Login = () => {
@@ -29,7 +25,7 @@ export const Login = () => {
             body: JSON.stringify({username: username, password: password}),
         }
 
-        fetch('http://6398750230bb.ngrok.io/auth/login', requestOptions)
+        fetch(server.SERVER_URI + 'auth/login', requestOptions)
             .then(res => res.json())
             .then(async data => {
                 if (data.username) {
@@ -37,11 +33,11 @@ export const Login = () => {
                     await profileStore.login(data.username)
                 } else {
                     alert("Something wrong...")
-                    setUsername("")
                     setPassword("")
                     setLoginDisabled(false)
                 }
             })
+        setLoginDisabled(false)
     }
 
     async function erase() {
@@ -50,7 +46,7 @@ export const Login = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <Layout style={styles.container}>
             <View style={styles.form}>
                 <Image
                     source={img}
@@ -94,7 +90,7 @@ export const Login = () => {
                 Erase videos from device and sign out
             </Button>
             }
-        </View>
+        </Layout>
     )
 }
 
@@ -102,7 +98,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'flex-start',
-        alignSelf: "center",
+
     },
     form: {
         flex: 1,
@@ -129,6 +125,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     erase: {
-        marginBottom: 10
+        marginBottom: 10,
+        alignSelf: "center"
     }
 });

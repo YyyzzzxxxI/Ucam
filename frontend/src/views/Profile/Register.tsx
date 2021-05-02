@@ -1,13 +1,8 @@
-import {Button, Input} from '@ui-kitten/components';
-import React, {Component} from 'react';
-import {
-    Text,
-    View,
-    StyleSheet,
-    Image,
-} from 'react-native';
-import profileStore from '../../store/profile.store';
-
+import {Button, Input, Layout} from '@ui-kitten/components';
+import React from 'react';
+import {Image, StyleSheet, Text, View,} from 'react-native';
+import {profileStore} from '../../store/profile.store';
+import {server} from "../params";
 
 
 export const Register = () => {
@@ -17,7 +12,7 @@ export const Register = () => {
 
     const img = require('../../../assets/camera.png')
 
-    function login(){
+    function login() {
         setRegDisabled(true)
 
         const requestOptions = {
@@ -29,14 +24,13 @@ export const Register = () => {
             },
             body: JSON.stringify({username: username, password: password}),
         }
-        fetch('http://6398750230bb.ngrok.io/auth/register', requestOptions)
+        fetch(server.SERVER_URI + 'auth/register', requestOptions)
             .then(res => res.json())
             .then(async data => {
-                if (data.username){
+                if (data.username) {
                     await profileStore.register(data.username)
                     console.log("Registered: " + data.username)
-                }
-                else {
+                } else {
                     alert("Something wrong...")
                     setUsername("")
                     setPassword("")
@@ -46,35 +40,44 @@ export const Register = () => {
     }
 
     return (
-        <View style={styles.container}>
-            <Image
-                source={img}
-                style={styles.headingImage}
-                resizeMode={"contain"}
-            />
-            <Text style={styles.greeting}>
-                Welcome,
-            </Text>
-            <Text style={styles.greeting2}>
-                sign up to continue
-            </Text>
-            <View style={styles.inputContainer}>
-                <Input
-                    placeholder="Username"
-                    value={username}
-                    onChangeText={nextValue => setUsername(nextValue)}
+        <Layout style={styles.container}>
+            <View style={styles.form}>
+                <Image
+                    source={img}
+                    style={styles.headingImage}
+                    resizeMode={"contain"}
                 />
-                <Input
-                    placeholder="Password"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={nextValue => setPassword(nextValue)}
-                />
+                <Text style={styles.greeting}>
+                    Welcome,
+                </Text>
+                <Text style={styles.greeting2}>
+                    sign up to continue
+                </Text>
+                <View style={styles.inputContainer}>
+                    {profileStore.username == '' ?
+                        <Input
+                            placeholder={"Username"}
+                            value={username}
+                            onChangeText={nextValue => setUsername(nextValue)}
+                        />
+                        :
+                        <Input
+                            value={username}
+                            disabled={true}
+                        />
+                    }
+                    <Input
+                        placeholder="Password"
+                        secureTextEntry
+                        value={password}
+                        onChangeText={nextValue => setPassword(nextValue)}
+                    />
+                </View>
+                <Button style={styles.register} appearance={"outline"} disabled={regDisabled} onPress={login}>
+                    Register
+                </Button>
             </View>
-            <Button style={styles.login} appearance={"outline"} disabled={regDisabled} onPress={login}>
-                Register
-            </Button>
-        </View>
+        </Layout>
     )
 
 }
@@ -82,6 +85,11 @@ export const Register = () => {
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
+        justifyContent: 'flex-start',
+
+    },
+    form: {
         flex: 1,
         justifyContent: 'flex-start',
         alignSelf: "center",
@@ -102,7 +110,7 @@ const styles = StyleSheet.create({
     inputContainer: {
         marginTop: 20
     },
-    login: {
+    register: {
         marginTop: 10,
-    }
+    },
 });

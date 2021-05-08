@@ -14,20 +14,16 @@ export class VideosService {
   ) {
   }
 
-  async uploadVideo(files: BufferedFile) {
-    try {
-      await this.minioClientService.upload(files)
+  async uploadVideo(files: BufferedFile, username: string) {
+    const error: boolean = await this.minioClientService.upload(files, username)
+    if (error) {
+      return { error: "something wrong" }
+    } else
       return { message: "success" }
-    } catch (e) {
-      console.log(e)
-      return {
-        error: e
-      }
-    }
   }
 
-  async downloadVideo(fileName: string, response) {
-    await this.minioClientService.download(fileName, response)
+  async downloadVideo(fileName: string, username: string, response) {
+    await this.minioClientService.download(fileName, username, response)
   }
 
   async getVideosNames(username: string) {

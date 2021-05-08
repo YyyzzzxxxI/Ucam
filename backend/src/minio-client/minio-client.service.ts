@@ -21,42 +21,56 @@ export class MinioClientService {
 
   public async download(
     fileName: string,
+    username: string,
     response: Response
   ): Promise<void> {
     const fileSize = (
-      await this.client.statObject(process.env.MINIO_BUCKET_NAME, fileName)
+      await this.client.statObject(process.env.MINIO_BUCKET_NAME, username + '/' + fileName)
     ).size
 
     response.setHeader("Content-Type", "*")
     response.setHeader("Content-Length", fileSize);
-
-    (await this.client.getObject(process.env.MINIO_BUCKET_NAME, fileName)).pipe(
+    (
+      await this.client.getObject(process.env.MINIO_BUCKET_NAME, username + '/' + fileName)).pipe(
       response
     )
   }
 
 
-  public async upload(files: BufferedFile) {
+  public async upload(files: BufferedFile, username: string): Promise<any> {
     const file: BufferedFile = files[0]
     console.log(file)
     const fileName = file.originalname
     const fileBuffer = file.buffer
-    this.client.putObject(process.env.MINIO_BUCKET_NAME, fileName, fileBuffer, function(err, res) {
-      err ? console.log(err) : console.log("Uploaded " + fileName)
+    const path = username + "/" + fileName
+
+    let error = false
+    await new Promise((resolve) => {
+      this.client.putObject(process.env.MINIO_BUCKET_NAME, path, fileBuffer, function(err, res) {
+        if (err) {
+          console.log(err)
+          error =  true
+          resolve(1)
+        }
+        else {
+          console.log("Uploaded " + fileName)
+          error =  false
+          resolve(1)
+        }
+      })
     })
+    return error
   }
 
   public async getVideosNamesByUsername(username: string) {
     const videosName: string[] = []
-    const videos = await this.client.listObjectsV2(process.env.MINIO_BUCKET_NAME, "", true)
+    const videos = await this.client.listObjectsV2(process.env.MINIO_BUCKET_NAME, username, true)
     let isEmpty = true
 
     await new Promise((resolve) => {
       videos.on("data", video => {
         isEmpty = false
-        let v = ""
-        if (video.name.match("^.*\-")) v = video.name.match("^.*\-")[0].slice(0, -1)
-        if (v == username) {
+        if (video.name.match("^.*\-")){
           videosName.push(video.name.match("(?<=-).*")[0].slice(0, -4))
         }
         resolve(videosName)

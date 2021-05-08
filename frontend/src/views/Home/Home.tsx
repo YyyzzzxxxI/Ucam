@@ -57,7 +57,7 @@ export const Home = observer(() => {
             }
             if (!uploadDisabled) {
                 uploadDisabled = true
-                let error = await videosStore.uploadVideo(video.name)
+                let error = !(await videosStore.uploadVideo(video.name))
                 uploadDisabled = false
                 error ? alert("Something wrong...") : alert("Uploaded!")
                 return
@@ -173,7 +173,7 @@ const styles = StyleSheet.create(
             height: screenHeight / 5,
         },
         alert: {
-            backgroundColor: "#f4f4f4"
+            backgroundColor: "#212b46"
         }
     }
 )

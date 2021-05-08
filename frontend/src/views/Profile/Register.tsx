@@ -59,6 +59,7 @@ export const Register = () => {
                             placeholder={"Username"}
                             value={username}
                             onChangeText={nextValue => setUsername(nextValue)}
+                            keyboardAppearance='dark'
                         />
                         :
                         <Input
@@ -71,6 +72,7 @@ export const Register = () => {
                         secureTextEntry
                         value={password}
                         onChangeText={nextValue => setPassword(nextValue)}
+                        keyboardAppearance='dark'
                     />
                 </View>
                 <Button style={styles.register} appearance={"outline"} disabled={regDisabled} onPress={login}>

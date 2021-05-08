@@ -28,9 +28,10 @@ export const Login = () => {
         fetch(server.SERVER_URI + 'auth/login', requestOptions)
             .then(res => res.json())
             .then(async data => {
-                if (data.username) {
-                    console.log("Logged: " + data.username)
-                    await profileStore.login(data.username)
+                if (data.access_token) {
+                    console.log("Logged")
+                    console.log("Username: " + username + "\naccess_token: " + data.access_token)
+                    await profileStore.login(username, data.access_token)
                 } else {
                     alert("Something wrong...")
                     setPassword("")
@@ -65,6 +66,7 @@ export const Login = () => {
                             placeholder={"Username"}
                             value={username}
                             onChangeText={nextValue => setUsername(nextValue)}
+                            keyboardAppearance='dark'
                         />
                         :
                         <Input
@@ -77,6 +79,7 @@ export const Login = () => {
                         secureTextEntry
                         value={password}
                         onChangeText={nextValue => setPassword(nextValue)}
+                        keyboardAppearance='dark'
                     />
                 </View>
                 <Button style={styles.login} appearance={"outline"} disabled={loginDisabled} onPress={login}>

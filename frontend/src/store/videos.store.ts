@@ -21,6 +21,11 @@ class VideosStore {
         makeAutoObservable(this)
     }
 
+    private async updateAsyncStorage() {
+        await AsyncStorage.setItem(videosAsyncStorageItems.videos, JSON.stringify(this.videos))
+        await AsyncStorage.setItem(videosAsyncStorageItems.videoKey, this.videoKey.toString())
+    }
+
     async init() {
         if (profileStore.isFirstLogin) {
             console.log("First login")
@@ -43,15 +48,17 @@ class VideosStore {
             this.videoKey = 0
         })
 
+        const bearer = "Bearer " + await profileStore.getAccessToken()
+
         const requestOptions = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                credentials: 'include'
-            },
-            body: JSON.stringify({username: profileStore.username}),
+                'Authorization': bearer
+            }
         }
+
         let videosNames: string[] = await fetch(server.SERVER_URI + 'videos/getVideosNames', requestOptions)
             .then(res => res.json())
 
@@ -63,7 +70,7 @@ class VideosStore {
             runInAction(() => this.curDownloadingVideo = i)
             let uri = server.SERVER_URI + 'videos/download' + profileStore.username.toString() + "-" + videosNames[i] + ".mov"
             let fileName = videosNames[i] + ".mov"
-            await FileSystem.downloadAsync(uri, videosFolder + fileName)
+            await FileSystem.downloadAsync(uri, videosFolder + fileName, requestOptions)
                 .then(() => {
                     console.log("Video downloaded from server!")
                     videosStore.addVideo(fileName, true)
@@ -78,11 +85,6 @@ class VideosStore {
             await this.updateAsyncStorage()
         })
 
-    }
-
-    private async updateAsyncStorage() {
-        await AsyncStorage.setItem(videosAsyncStorageItems.videos, JSON.stringify(this.videos))
-        await AsyncStorage.setItem(videosAsyncStorageItems.videoKey, this.videoKey.toString())
     }
 
     async addVideo(name: string, isUploaded: boolean = false) {
@@ -103,13 +105,22 @@ class VideosStore {
         // @ts-ignore
         formData.append('file', {uri: localUri, name: profileStore.username + "-" + name, type: "*"})
 
+        const bearer = "Bearer " + await profileStore.getAccessToken()
+
         let data = await fetch(serverUri, {
             method: 'POST',
             body: formData,
             headers: {
                 'content-type': 'multipart/form-data',
+                'Accept': 'application/json',
+                'Authorization': bearer
             },
         }).then(res => res.json())
+
+        console.log(data)
+        if (data.error || data.message == "Unauthorized") {
+            return false
+        }
 
         await runInAction(() => {
             for (let i = 0; i < this.videos.length; i++) {
@@ -121,7 +132,7 @@ class VideosStore {
         })
         await this.updateAsyncStorage()
 
-        return data.error
+        return true
     }
 
     getAllVideos(): IVideo[] {

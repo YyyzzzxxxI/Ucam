@@ -1,51 +1,63 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import * as FileSystem from 'expo-file-system';
+import * as SecureStore from 'expo-secure-store';
 import {makeAutoObservable, runInAction} from "mobx";
-import {profileAsyncStorageItems, videosAsyncStorageItems, videosFolder} from "../views/params";
+import {
+    profileAsyncStorageItems,
+    profileSecureStoreItems,
+    videosAsyncStorageItems,
+    videosFolder
+} from "../views/params";
 
 
 class ProfileStore {
     username = ''
     isLogged = false
     isFirstLogin = true
-    darkMode = false
+
+    darkMode = true
 
     constructor() {
         makeAutoObservable(this)
     }
 
     async init() {
-        this.username = await AsyncStorage.getItem(profileAsyncStorageItems.username) || ""
+        this.username = await SecureStore.getItemAsync(profileSecureStoreItems.username) || ""
         this.darkMode = !!Number(await AsyncStorage.getItem(profileAsyncStorageItems.darkMode))
         if (this.username != "") this.isFirstLogin = false
         console.log("init " + this.username)
     }
 
     async register(username: string) {
-        await AsyncStorage.setItem(profileAsyncStorageItems.username, username)
+        await SecureStore.setItemAsync(profileSecureStoreItems.username, username)
         runInAction(() => {
             this.username = username
             this.isLogged = true
         })
     }
 
-    async login(username: string) {
-        await AsyncStorage.setItem(profileAsyncStorageItems.username, username)
+    async login(username: string, access_token: string) {
+        await SecureStore.setItemAsync(profileSecureStoreItems.username, username)
+        await SecureStore.setItemAsync(profileSecureStoreItems.access_token, access_token)
         runInAction(() => {
             this.username = username
             this.isLogged = true
         })
+    }
+
+    async getAccessToken(){
+        return await SecureStore.getItemAsync(profileSecureStoreItems.access_token)
     }
 
     async setDarkMode(enabled: boolean) {
         runInAction(() => {
             this.darkMode = enabled
         })
-        await AsyncStorage.setItem("darkMode", (+enabled).toString())
+        await AsyncStorage.setItem(profileAsyncStorageItems.darkMode, (+enabled).toString())
     }
 
     async erase() {
-        await AsyncStorage.removeItem(profileAsyncStorageItems.username)
+        await SecureStore.deleteItemAsync(profileSecureStoreItems.username)
         await AsyncStorage.removeItem(videosAsyncStorageItems.videos)
         await AsyncStorage.removeItem(videosAsyncStorageItems.videoKey)
         if (videosFolder != null) {
@@ -55,7 +67,7 @@ class ProfileStore {
             this.username = ""
             this.isLogged = false
             this.isFirstLogin = true
-            this.darkMode = false
+            this.darkMode = true
         })
         console.log("Profile and videos erased")
     }

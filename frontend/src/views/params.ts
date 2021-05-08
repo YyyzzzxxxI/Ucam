@@ -11,11 +11,15 @@ const views = {
 }
 
 const server = {
-    SERVER_URI: "http://a3420502c5bb.ngrok.io/"
+    SERVER_URI: "http://59f136a638ea.ngrok.io/"
+}
+
+const profileSecureStoreItems = {
+    username: "username",
+    access_token: "access_token"
 }
 
 const profileAsyncStorageItems = {
-    username: "username",
     darkMode: "darkMode"
 }
 
@@ -27,5 +31,5 @@ const videosAsyncStorageItems = {
 const videosFolder = FileSystem.documentDirectory + "videos/"
 
 
-export {views, server, profileAsyncStorageItems, videosAsyncStorageItems, videosFolder}
+export {views, server, profileSecureStoreItems, profileAsyncStorageItems, videosAsyncStorageItems, videosFolder}
 

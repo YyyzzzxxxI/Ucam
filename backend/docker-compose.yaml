@@ -6,6 +6,7 @@ services:
     container_name: sample-postgres
     build: ./docker/postgres
     image: sample-postgres
+    network_mode: host
     ports:
     - "127.0.0.1:5432:5432"
     env_file:
@@ -16,10 +17,11 @@ services:
       PGDATA: /var/lib/postgresql/data/
     restart: always
 
-  sample-nodejs:
-    container_name: sample-nodejs
+  nodejs:
+    container_name: nodejs
     build: ./docker/nodejs
     image: sample-nodejs
+    network_mode: host
     volumes:
       - .:/app
     ports:
@@ -35,6 +37,7 @@ services:
   minio:
     container_name: minio
     image: minio/minio:latest
+    network_mode: host
     ports:
       - 9000:9000
     volumes:

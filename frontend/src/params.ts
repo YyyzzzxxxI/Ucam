@@ -11,8 +11,7 @@ const views = {
 }
 
 const server = {
-    // SERVER_URI: "http://34.116.209.223/api/"
-    SERVER_URI: "http://45223a8d2812.ngrok.io/"
+    SERVER_URI: "http://34.116.209.223/api/"
 }
 
 const profileSecureStoreItems = {

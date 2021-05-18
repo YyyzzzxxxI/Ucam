@@ -8,7 +8,7 @@ import {profileStore} from '../../store/profile.store';
 import {Camera} from '../../views/Camera/Camera';
 
 import {Home} from "../../views/Home/Home";
-import {views} from "../../views/params";
+import {views} from "../../params";
 import {Login} from "../../views/Profile/Login";
 import {Profile} from "../../views/Profile/Profile";
 import {Register} from "../../views/Profile/Register";

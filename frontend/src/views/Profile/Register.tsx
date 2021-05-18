@@ -2,7 +2,7 @@ import {Button, Input, Layout} from '@ui-kitten/components';
 import React from 'react';
 import {Image, StyleSheet, Text, View,} from 'react-native';
 import {profileStore} from '../../store/profile.store';
-import {server} from "../params";
+import {server} from "../../params";
 
 
 export const Register = () => {

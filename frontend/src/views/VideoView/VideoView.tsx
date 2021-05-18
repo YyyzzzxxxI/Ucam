@@ -3,7 +3,7 @@ import {Icon, Layout} from "@ui-kitten/components";
 import VideoPlayer from 'expo-video-player'
 import React from 'react';
 import {Dimensions, StyleSheet} from 'react-native';
-import {videosFolder} from "../params";
+import {videosFolder} from "../../params";
 
 const screenWidth = Dimensions.get('screen').width;
 const screenHeight = Dimensions.get('screen').height;

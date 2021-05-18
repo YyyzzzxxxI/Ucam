@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from 'expo-file-system';
 import {makeAutoObservable, runInAction} from "mobx";
-import {server, videosAsyncStorageItems, videosFolder} from "../views/params";
+import {server, videosAsyncStorageItems, videosFolder} from "../params";
 import {profileStore} from "./profile.store";
 
 
@@ -106,7 +106,7 @@ class VideosStore {
         formData.append('file', {uri: localUri, name: profileStore.username + "-" + name, type: "*"})
 
         const bearer = "Bearer " + await profileStore.getAccessToken()
-
+        console.log(1111)
         let data = await fetch(serverUri, {
             method: 'POST',
             body: formData,

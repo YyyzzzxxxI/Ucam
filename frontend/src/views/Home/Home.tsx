@@ -9,7 +9,7 @@ import {Dimensions, StyleSheet, TouchableOpacity, View} from "react-native";
 import {ProgressDialog} from 'react-native-simple-dialogs';
 import {profileStore} from "../../store/profile.store";
 import {IVideo, videosStore} from "../../store/videos.store"
-import {videosFolder, views} from "../params";
+import {videosFolder, views} from "../../params";
 
 const screenWidth = Dimensions.get('screen').width;
 const screenHeight = Dimensions.get('screen').height;

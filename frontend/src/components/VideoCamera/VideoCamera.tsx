@@ -6,7 +6,7 @@ import * as FileSystem from 'expo-file-system';
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {videosStore} from "../../store/videos.store"
-import {videosFolder, views} from "../../views/params";
+import {videosFolder, views} from "../../params";
 
 
 export const VideoCamera = () => {

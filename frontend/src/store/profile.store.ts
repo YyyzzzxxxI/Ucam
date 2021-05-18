@@ -7,7 +7,7 @@ import {
     profileSecureStoreItems,
     videosAsyncStorageItems,
     videosFolder
-} from "../views/params";
+} from "../params";
 
 
 class ProfileStore {
